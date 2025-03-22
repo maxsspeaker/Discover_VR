@@ -61,6 +61,7 @@ class DiscordConnector:
         self.text = []
         self.authed = False
         self.last_rate_limit_send = 0
+        self.VRapi=False
 
         self.socket_watch = None
 
@@ -122,6 +123,7 @@ class DiscordConnector:
             self.current_guild = "0"
             self.discover.voice_overlay.set_blank()
             self.in_room = []
+            self.update_vr_api()
             return
         if channel != self.current_voice:
             if self.current_voice != "0":
@@ -268,6 +270,13 @@ class DiscordConnector:
         if "speaking" not in user:
             user["speaking"] = False
         self.userlist[user["id"]] = user
+        self.update_vr_api()
+        #print(self.userlist)
+
+    def update_vr_api(self):
+        if self.VRapi:
+            with open("/tmp/discover_overlay_api.json","w") as f:
+                json.dump({"in_room":self.in_room,"userlist":self.userlist},f, indent=4) # userlist
 
     def on_message(self, message):
         """
@@ -298,6 +307,7 @@ class DiscordConnector:
                 if self.current_voice != "0":
                     self.update_user(thisuser)
                 self.set_in_room(thisuser["id"], True)
+                self.update_vr_api()
             elif j["evt"] == "VOICE_STATE_CREATE":
                 self.list_altered = True
                 thisuser = j["data"]["user"]
@@ -308,6 +318,7 @@ class DiscordConnector:
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.find_user()
                 self.userlist[thisuser["id"]]["lastspoken"] = time.perf_counter()
+                self.update_vr_api()
             elif j["evt"] == "VOICE_STATE_DELETE":
                 self.list_altered = True
                 self.set_in_room(j["data"]["user"]["id"], False)
@@ -317,24 +328,29 @@ class DiscordConnector:
                     self.discover.voice_overlay.set_channel_title(None)
                     self.discover.voice_overlay.set_channel_icon(None)
                     # User might have been forcibly moved room
+                self.update_vr_api()
             elif j["evt"] == "SPEAKING_START":
                 self.list_altered = True
                 self.userlist[j["data"]["user_id"]]["speaking"] = True
                 self.userlist[j["data"]["user_id"]]["lastspoken"] = time.perf_counter()
                 self.set_in_room(j["data"]["user_id"], True)
+                self.update_vr_api()
             elif j["evt"] == "SPEAKING_STOP":
                 self.list_altered = True
                 if j["data"]["user_id"] in self.userlist:
                     self.userlist[j["data"]["user_id"]]["speaking"] = False
                 self.set_in_room(j["data"]["user_id"], True)
+                self.update_vr_api()
             elif j["evt"] == "VOICE_CHANNEL_SELECT":
                 if j["data"]["channel_id"]:
                     self.set_channel(j["data"]["channel_id"],
                                      j["data"]["guild_id"])
                 else:
                     self.set_channel(None, None)
+                self.update_vr_api()
             elif j["evt"] == "VOICE_CONNECTION_STATUS":
                 self.discover.voice_overlay.set_connection_status(j["data"])
+
             elif j["evt"] == "MESSAGE_CREATE":
                 if self.current_text == j["data"]["channel_id"]:
                     self.add_text(j["data"]["message"])

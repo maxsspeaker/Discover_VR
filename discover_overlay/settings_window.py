@@ -1321,6 +1321,9 @@ class MainSettingsWindow():
     def core_force_xshape_changed(self, button):
         self.config_set("general", "xshape", f"{button.get_active()}")
 
+    def core_vr_api_changed(self, button):
+        self.config_set("general", "vrapi", f"{button.get_active()}")
+
     def core_show_tray_icon_changed(self, button):
         self.set_sys_tray_icon_visible(button.get_active())
         self.config_set("general", "showsystray", f"{button.get_active()}")

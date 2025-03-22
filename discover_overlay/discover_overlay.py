@@ -398,6 +398,10 @@ class Discover:
         self.set_force_xshape(
             config.getboolean("general", "xshape", fallback=False))
 
+        self.connection.VRapi = config.getboolean("general", "vrapi", fallback=False)
+        if self.connection.VRapi:
+            self.connection.update_vr_api()
+
         hidden = config.getboolean("general", "hideoverlay", fallback=False)
         self.voice_overlay.set_hidden(hidden)
         self.text_overlay.set_hidden(hidden)
