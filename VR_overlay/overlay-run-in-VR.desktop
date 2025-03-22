@@ -1,0 +1,19 @@
+[Desktop Entry]
+Categories=Utility;TelephonyTools
+Comment[ru_RU]=Voice chat overlay
+Comment=Voice chat overlay
+Exec=env WAYLAND_DISPLAY=wayland-20 DISPLAY= GDK_BACKEND=wayland python main.py
+GenericName[ru_RU]=
+GenericName=
+Icon=
+Keywords=Discord
+MimeType=
+Name[ru_RU]=Discover Overlay
+Name=Discover Overlay
+Path=
+StartupNotify=true
+Terminal=true
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=
