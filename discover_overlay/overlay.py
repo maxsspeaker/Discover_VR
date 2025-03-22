@@ -67,7 +67,7 @@ class OverlayWindow(Gtk.Window):
         self.hidden = False
         self.enabled = False
         self.set_size_request(50, 50)
-        self.hide_on_mouseover = False
+        self.hide_on_mouseover = True
         self.connect('draw', self.overlay_draw_pre)
         # Set RGBA
         screen = self.get_screen()
@@ -81,12 +81,12 @@ class OverlayWindow(Gtk.Window):
             self.set_visual(visual)
 
         self.set_app_paintable(True)
-        #self.set_untouchable()
+        self.set_untouchable()
         self.set_skip_pager_hint(True)
         self.set_skip_taskbar_hint(True)
         self.set_keep_above(True)
-        #self.set_decorated(True)
-        self.set_accept_focus(True)
+        self.set_decorated(True)
+        self.set_accept_focus(False)
         self.set_wayland_state()
         self.piggyback = None
         self.piggyback_parent = None
@@ -189,7 +189,7 @@ class OverlayWindow(Gtk.Window):
                 if not self.hidden and self.enabled:
                     self.set_gamescope_xatom(1)
         # If we're hiding on mouseover, allow mouse-in
-        if False:
+        if self.hide_on_mouseover:
             # We've mouse-overed
             if self.draw_blank:
                 self.set_untouchable()
@@ -237,9 +237,9 @@ class OverlayWindow(Gtk.Window):
         if (self.floating != floating or self.pos_x != pos_x or
            self.pos_y != pos_y or self.width != width or self.height != height):
             # Special case for Cinnamon desktop : see https://github.com/trigg/Discover/issues/322
-            #if ('XDG_SESSION_DESKTOP' in os.environ and
-            #        os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon'):
-                #floating = True
+            if ('XDG_SESSION_DESKTOP' in os.environ and
+                    os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon'):
+                floating = True
 
             self.floating = floating
             self.pos_x = pos_x
@@ -253,15 +253,14 @@ class OverlayWindow(Gtk.Window):
         Create a custom input shape and tell it that all of the window is a cut-out
         This allows us to have a window above everything but that never gets clicked on
         """
-        if(True):
-            (width, height) = self.get_size()
-            surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-            surface_ctx = cairo.Context(surface)
-            surface_ctx.set_source_rgba(0.0, 0.0, 0.0, 0.0)
-            surface_ctx.set_operator(cairo.OPERATOR_SOURCE)
-            surface_ctx.paint()
-            reg = Gdk.cairo_region_create_from_surface(surface)
-            self.input_shape_combine_region(reg)
+        (width, height) = self.get_size()
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+        surface_ctx = cairo.Context(surface)
+        surface_ctx.set_source_rgba(0.0, 0.0, 0.0, 0.0)
+        surface_ctx.set_operator(cairo.OPERATOR_SOURCE)
+        surface_ctx.paint()
+        reg = Gdk.cairo_region_create_from_surface(surface)
+        self.input_shape_combine_region(reg)
 
     def set_hide_on_mouseover(self, hide):
         """Set if the overlay should hide when mouse moves over it"""
@@ -296,7 +295,7 @@ class OverlayWindow(Gtk.Window):
             self.set_needs_redraw()
             return
         if not self.is_wayland:
-            #self.set_decorated(True)
+            self.set_decorated(False)
             self.set_keep_above(True)
 
             (floating_x, floating_y, floating_width,
