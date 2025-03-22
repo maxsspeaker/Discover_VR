@@ -46,7 +46,7 @@ class TransparentWidget(QWidget):
         self.AvatarCache={}
 
         # Убираем рамку и включаем прозрачность
-        #self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         # Основной макет
@@ -74,6 +74,8 @@ class TransparentWidget(QWidget):
 
         event_handler = NewFolderEventHandler()
         event_handler.mainWindow=self
+
+        self.resize(800,600)
 
 
         self.observer = Observer()
