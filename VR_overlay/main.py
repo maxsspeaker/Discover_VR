@@ -1,4 +1,4 @@
-import sys,time,traceback
+import sys,time,traceback,os
 import requests
 from PIL import Image,ImageQt
 from io import BytesIO
@@ -46,11 +46,17 @@ class TransparentWidget(QWidget):
         self.AvatarCache={}
 
         # Убираем рамку и включаем прозрачность
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+        if (os.environ.get('WAYLAND_DISPLAY') == "wayland-20"):
+            self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+
+        self.setWindowTitle("Foxlay VR-Overlay")
 
         # Основной макет
         self.layout = QVBoxLayout(self)
+
+        spacer_top = QSpacerItem(10, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.layout.addSpacerItem(spacer_top)
 
         # Верхняя граница
         #self.top_label = QLabel("======[виджет]======")
@@ -75,7 +81,7 @@ class TransparentWidget(QWidget):
         event_handler = NewFolderEventHandler()
         event_handler.mainWindow=self
 
-        self.resize(800,600)
+        self.resize(200,400)
 
 
         self.observer = Observer()
@@ -85,6 +91,12 @@ class TransparentWidget(QWidget):
         #self.button = QPushButton("Удалить и добавить новые")
         #self.layout.addWidget(self.button)
         #self.button.clicked.connect(self.change_widgets)
+
+        with open("/tmp/discover_overlay_api.json","r") as f:
+            data=json.load(f)
+            self.in_room=data['in_room']
+            self.userlist=data['userlist']
+        self.update_items()
 
     def trigger_watchdog_event(self, message):
         # Создаем и отправляем кастомное событие в основной поток
@@ -122,7 +134,7 @@ class TransparentWidget(QWidget):
                 if self.userlist[user_id]["speaking"]:
                     self.UserAvatars[user_id].setStyleSheet("border: 2px solid;border-color: green;")
                 else:
-                    self.UserAvatars[user_id].setStyleSheet("")
+                    self.UserAvatars[user_id].setStyleSheet("margin: 2px;")
         if(event=="VOICE_STATE_UPDATE"):
             for user_id in self.in_room:
                 self.UserAvatars[user_id].setPixmap(self.load_image(user_id,
@@ -159,8 +171,11 @@ class TransparentWidget(QWidget):
 
             # QLabel для изображения (заглушка до загрузки)
             img_label = QLabel()
-            img_label.setFixedSize(32, 32)  # Размер иконки
-            img_label.setPixmap(self.load_image(User_id,self.userlist[User_id].get('avatar')))#self.get_placeholder_pixmap())
+            img_label.setFixedSize(34, 34)  # Размер иконки
+            img_label.setPixmap(self.load_image(User_id,
+                    self.userlist[User_id]['avatar'],
+                    deaf=self.userlist[User_id]['deaf'],
+                    mute=self.userlist[User_id]['mute']))
             self.UserAvatars[User_id]=img_label
 
 
@@ -168,18 +183,22 @@ class TransparentWidget(QWidget):
             text_label = QLabel(self.userlist[User_id].get("nick"))
             if self.userlist[User_id].get('speaking'):
                 img_label.setStyleSheet("border: 2px solid;border-color: green;")
+            else:
+                self.UserAvatars[User_id].setStyleSheet("margin: 2px;")
 
             # QLabel для текста с прозрачным фоном
             text_label.setStyleSheet("background-color: rgba(0, 0, 0, 150); color: white; padding: 3px; border-radius: 0px;")
 
             # Спейсер для прижатия к левому краю
             spacer_right = QSpacerItem(40, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+            spacer_left = QSpacerItem(40, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
             # Добавляем виджеты в горизонтальный макет
+            item_layout.addSpacerItem(spacer_left)
             item_layout.addWidget(img_label)
             item_layout.addWidget(text_label)
             item_layout.addSpacerItem(spacer_right)
-            self.UsersWidget.append([img_label,text_label,spacer_right,item_layout])
+            self.UsersWidget.append([spacer_left,img_label,text_label,spacer_right,item_layout])
             self.items_container.addLayout(item_layout)
             #print(User_id)
         self.items_container.update()
@@ -194,8 +213,13 @@ class TransparentWidget(QWidget):
     def paintEvent(self, event):
         """Делаем окно полностью прозрачным"""
         painter = QPainter(self)
-        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_Clear)
-        painter.fillRect(self.rect(), Qt.GlobalColor.transparent)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setBrush(QColor(0, 0, 0, 100))  # Полупрозрачный фон (чёрный с альфа-каналом)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawRect(self.rect())
+        #painter = QPainter(self)
+        #painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_Clear)
+        #painter.fillRect(self.rect(), Qt.GlobalColor.transparent)
 
     def load_image(self,user_id,avatar_hash,deaf=False,mute=False):
         # URL изображения, которое загружаем с интернета
@@ -203,9 +227,9 @@ class TransparentWidget(QWidget):
 
         # Загрузка первого изображения
         if not(self.AvatarCache.get(avatar_hash)):
-            print("loading")
+            print("loading: "+str(avatar_hash))
             response1 = requests.get("https://cdn.discordapp.com/avatars/"+user_id+"/"+avatar_hash+".png")
-            self.AvatarCache[avatar_hash] = Image.open(BytesIO(response1.content)).resize((32,32))
+            self.AvatarCache[avatar_hash] = Image.open(BytesIO(response1.content)).resize((32,32)).convert("RGBA")
 
 
         if deaf:
@@ -256,7 +280,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = TransparentWidget()
 
-    window.update_items()
     window.show()
     sys.excepthook = excepthook
     

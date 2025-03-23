@@ -1,11 +1,12 @@
 [Desktop Entry]
 Categories=Utility;TelephonyTools
-Comment=Voice chat VR overlay 
-Exec=env WAYLAND_DISPLAY=wayland-20 DISPLAY= GDK_BACKEND=wayland python main.py
+Comment[ru_RU]=Voice chat overlay
+Comment=Voice chat overlay
+Exec=python main.py
 Icon=steamvr
 Keywords=Discord
 MimeType=
-Name=Foxlay VR-Overlay
+Name=Discover Overlay
 Path=/run/media/maxsspeaker/HDD_Games/Projects/Discover/VR_overlay/
 StartupNotify=true
 Terminal=true

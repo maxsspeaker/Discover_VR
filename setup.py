@@ -52,6 +52,7 @@ setup(
     ],
     package_data={
         'discover_overlay': ['locales/*/LC_MESSAGES/*.mo', 'glade/*']
+        'VR_overlay': ['headphone.png', 'microphone.png']
     },
     keywords='discord overlay voice linux',
     license='GPLv3+',
