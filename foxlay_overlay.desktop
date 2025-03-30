@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=Discover Overlay
-Comment=Voice chat overlay
+Name=Foxlay Overlay
+Comment=Voice chat VR overlay
 Exec=env WAYLAND_DISPLAY=wayland-20 DISPLAY= GDK_BACKEND=wayland foxlay_overlay
 Icon=steamvr
 Terminal=true
