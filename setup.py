@@ -6,7 +6,7 @@ def readme():
 
 
 setup(
-    name='discover-overlay-vr',
+    name='discover-overlay',
     author='trigg,maxsspeaker',
     author_email='',
     version='0.7.8',
