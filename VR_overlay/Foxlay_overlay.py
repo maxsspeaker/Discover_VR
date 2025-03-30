@@ -284,6 +284,10 @@ def excepthook(exc_type, exc_value, exc_tb):
 UserEventType = QEvent.registerEventType()
 
 def main():
+    if (os.path.exists(os.environ.get('XDG_RUNTIME_DIR')+"/"+"wayland-20")):
+        os.environ["WAYLAND_DISPLAY"]="wayland-20"
+        os.environ["GDK_BACKEND"]="wayland"
+
     app = QApplication(sys.argv)
 
     if not(os.path.isfile(os.path.join("/tmp","discover_overlay_api.json"))):
@@ -294,7 +298,7 @@ def main():
         msg.setWindowTitle("Foxlay VR-Overlay: Error")
         msg.exec()
         sys.exit()
-    elif not(os.path.isfile(os.path.join(os.environ.get('XDG_RUNTIME_DIR'),"wayland-20"))):
+    if not(os.path.exists(os.environ.get('XDG_RUNTIME_DIR')+"/"+"wayland-20")):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Icon.Critical)
         msg.setText("wlx-overlay-s composer not running!")
@@ -302,10 +306,7 @@ def main():
         msg.setWindowTitle("Foxlay VR-Overlay: Error")
         msg.exec()
         sys.exit()
-    else:
-        os.environ["WAYLAND_DISPLAY"]="wayland-20"
-        os.environ["GDK_BACKEND"]="wayland"
-
+        
     window = TransparentWidget()
 
 
