@@ -49,6 +49,9 @@ class TransparentWidget(QWidget):
 
         self.AvatarCache={}
 
+        #os.environ["WAYLAND_DISPLAY"]="wayland-20"
+        #os.environ["DISPLAY"]=""
+
         # Убираем рамку и включаем прозрачность
         if (os.environ.get('WAYLAND_DISPLAY') == "wayland-20"):
             self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
@@ -282,7 +285,29 @@ UserEventType = QEvent.registerEventType()
 
 def main():
     app = QApplication(sys.argv)
+
+    if not(os.path.isfile(os.path.join("/tmp","discover_overlay_api.json"))):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Icon.Critical)
+        msg.setText("Discover overlay is not running in VR API mode!")
+        msg.setInformativeText("enable VR API support in the Discover overlay settings")
+        msg.setWindowTitle("Foxlay VR-Overlay: Error")
+        msg.exec()
+        sys.exit()
+    elif not(os.path.isfile(os.path.join(os.environ.get('XDG_RUNTIME_DIR'),"wayland-20"))):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Icon.Critical)
+        msg.setText("wlx-overlay-s composer not running!")
+        msg.setInformativeText("Please launch VR to run this app")
+        msg.setWindowTitle("Foxlay VR-Overlay: Error")
+        msg.exec()
+        sys.exit()
+    else:
+        os.environ["WAYLAND_DISPLAY"]="wayland-20"
+        os.environ["GDK_BACKEND"]="wayland"
+
     window = TransparentWidget()
+
 
     window.show()
     sys.excepthook = excepthook

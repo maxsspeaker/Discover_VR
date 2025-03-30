@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Foxlay Overlay
 Comment=Voice chat VR overlay
-Exec=env WAYLAND_DISPLAY=wayland-20 DISPLAY= GDK_BACKEND=wayland foxlay_overlay
+Exec=foxlay_overlay
 Icon=steamvr
 Terminal=true
 Type=Application
