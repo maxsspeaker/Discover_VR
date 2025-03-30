@@ -2,7 +2,7 @@
 Categories=Utility;TelephonyTools
 Comment[ru_RU]=Voice chat overlay
 Comment=Voice chat overlay
-Exec=python main.py
+Exec=python Foxlay_overlay.py
 Icon=steamvr
 Keywords=Discord
 MimeType=

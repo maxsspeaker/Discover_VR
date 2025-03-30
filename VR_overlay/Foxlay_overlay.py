@@ -40,8 +40,12 @@ class TransparentWidget(QWidget):
         self.userlist={}
         self.EventRandom=0
 
-        self.headphone = Image.open("headphone.png").resize((32,32))
-        self.microphone = Image.open("microphone.png").resize((32,32))
+        if(os.path.isfile('icons/foxlay_disabled_headphone.png')):
+            self.headphone = Image.open("icons/foxlay_disabled_headphone.png").resize((32,32))
+            self.microphone = Image.open("icons/foxlay_disabled_microphone.png").resize((32,32))
+        else:
+            self.headphone = Image.open("/usr/share/icons/hicolor/512x512/apps/foxlay_disabled_headphone.png").resize((32,32))
+            self.microphone = Image.open("/usr/share/icons/hicolor/512x512/apps/foxlay_disabled_microphone.png").resize((32,32))
 
         self.AvatarCache={}
 
@@ -276,7 +280,7 @@ def excepthook(exc_type, exc_value, exc_tb):
 
 UserEventType = QEvent.registerEventType()
 
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     window = TransparentWidget()
 
@@ -287,3 +291,8 @@ if __name__ == "__main__":
 
     window.observer.join()
     window.observer.stop()
+
+
+if __name__ == "__main__":
+    main()
+    

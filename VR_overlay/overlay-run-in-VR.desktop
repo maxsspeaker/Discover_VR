@@ -1,7 +1,7 @@
 [Desktop Entry]
 Categories=Utility;TelephonyTools
 Comment=Voice chat VR overlay 
-Exec=env WAYLAND_DISPLAY=wayland-20 DISPLAY= GDK_BACKEND=wayland python main.py
+Exec=env WAYLAND_DISPLAY=wayland-20 DISPLAY= GDK_BACKEND=wayland python Foxlay_overlay.py
 Icon=steamvr
 Keywords=Discord
 MimeType=

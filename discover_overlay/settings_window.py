@@ -716,6 +716,9 @@ class MainSettingsWindow():
         self.widget['core_force_xshape'].set_active(
             config.getboolean("general", "xshape", fallback=False))
 
+        self.widget['core_vr_api'].set_active(
+            config.getboolean("general", "vrapi", fallback=False))
+
         self.show_sys_tray_icon = config.getboolean(
             "general", "showsystray", fallback=True)
         self.set_sys_tray_icon_visible(self.show_sys_tray_icon)
