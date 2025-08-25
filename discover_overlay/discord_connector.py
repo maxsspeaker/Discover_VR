@@ -63,6 +63,8 @@ class DiscordConnector:
         self.authed = False
         self.last_rate_limit_send = 0
         self.VRapi=False
+        self.muted = False
+        self.deafened = False
 
         self.socket_watch = None
 
@@ -479,6 +481,8 @@ class DiscordConnector:
         elif j["cmd"] == "SELECT_VOICE_CHANNEL":
             return
         elif j["cmd"] == "SET_VOICE_SETTINGS":
+            self.muted = j['data']['mute']
+            self.deafened = j['data']['deaf']
             return
         elif j["cmd"] == "GET_VOICE_SETTINGS":
             return
